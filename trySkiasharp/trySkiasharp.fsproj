@@ -55,6 +55,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="DrawDSL.fs" />
     <Compile Include="MyPage.fs" />
     <Compile Include="trySkiasharp.fs" />
     <Compile Include="AssemblyInfo.fs" />

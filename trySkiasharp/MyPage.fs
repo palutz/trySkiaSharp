@@ -5,6 +5,8 @@ open Xamarin.Forms
 open SkiaSharp
 open SkiaSharp.Views.Forms
 
+open DrawDSL
+
 
 //type DonutCharSK = 
 
