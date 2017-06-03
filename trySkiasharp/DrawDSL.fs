@@ -3,62 +3,76 @@
 
 module ScoreDrawDSL =
 
-  type ScoreColor = 
-    | Blue = 0
-    | Red = 1
-    | White = 2
-    | Gray = 3
-    | Green = 4
-    | Purple = 5
+  type DonutRing = 
+    struct
+      val ringW : int
+      val ringPercInCent : int
+      new(ringperc : int, w : int) = {
+        ringPercInCent = ringperc
+        ringW = w
+        }
+    end
 
 
-  type DonutChart(centerx : int, centery : int, innerRad : int) = 
-    member this.centerX = centerx
-    member this. centerY = centery
-    member this.innerRadius = innerRad
+  type DonutChart =
+    struct
+      val centerX : int
+      val centerY : int
+      val radius : int
+      val text : string option
+      new(x : int, y : int, r : int, txt : string option) = {
+          centerX  = x
+          centerY  = y
+          radius = r
+          text = txt
+        }
+    end
 
-
-  type DonutChartWithText(centerx, centery, innerRad, txt) = 
-    inherit DonutChart(centerx, centery, innerRad)
-    member this.text = txt 
 
 
 module DrawSKiaDSL =
-  open System
+  open Xamarin.Forms
   open SkiaSharp
   open SkiaSharp.Views.Forms
   open ScoreDrawDSL
 
-
-  let Score2SkiaColor (c : ScoreColor) =
-    match c with
-      | Blue -> Xamarin.Forms.Color.Blue.ToSKColor()
-      | Red -> Xamarin.Forms.Color.Red.ToSKColor()
-      | Purple -> Xamarin.Forms.Color.Purple.ToSKColor()
-      | Green -> Xamarin.Forms.Color.Green.ToSKColor()
-      | Gray -> Xamarin.Forms.Color.Gray.ToSKColor()
-      | White -> Xamarin.Forms.Color.White.ToSKColor()
-      | _ -> Xamarin.Forms.Color.White.ToSKColor()   // default
-
   
-  let painter (color: ScoreColor) width =
-    new SKPaint(
+  let painterShape (color: SKColor) width =
+    new SKPaint
+      (
         Style = SKPaintStyle.Stroke,
-        Color = (color |> Score2SkiaColor),
-        StrokeWidth = width
+        Color = color,
+        StrokeWidth = (width |> float32)
       )
 
-  let createSKRectForArc halfInner radius centerx centery   =
-    new SKRect(centerx - radius + halfInner, centery - radius + halfInner, centerx + radius - halfInner, centery + radius - halfInner)
-
-
-  type SKiaDonutChart (skCircle, donutPaint) =
-
   
+  let painterText (color: SKColor) =
+    new SKPaint( Color = color )
+    
 
 
+  let createSKRectForArc width radius centerx centery =
+    let halfWidth = width / 2.0f
+    new SKRect(centerx - radius + halfWidth, centery - radius + halfWidth, centerx + radius - halfWidth, centery + radius - halfWidth)
 
-
-   
-
-
+  let convertPercent2Angle (percInCent : int) = 
+    percInCent |> float32 |> (*) 3.6f   // / 3.6 = 360 / 100
+  
+  let paintDonutChart (canvas: SKCanvas) (path: SKPath) (donut : DonutChart) (dntRing: DonutRing) =
+    //let hr = (dntRing.ringW |> float32) / 2.0f
+    let rect = createSKRectForArc (dntRing.ringW |> float32) (donut.radius |> float32) (donut.centerX |> float32) (donut.centerY |> float32)
+    do
+      path.AddArc(rect, 0.0f, (convertPercent2Angle dntRing.ringPercInCent))
+      canvas.DrawPath(path, painterShape (Color.Gray.ToSKColor()) (dntRing.ringW |> float32))
+      canvas.DrawCircle(
+                          donut.centerX |> float32,
+                          donut.centerY |> float32, 
+                          donut.radius |> float32,
+                          painterShape (Color.Gray.ToSKColor()) 3.0f
+                        )
+      match donut.text with 
+      | Some str -> 
+              let txtPaint = painterText (Color.Black.ToSKColor())
+              let txtWidth = txtPaint.MeasureText str
+              canvas.DrawText(str, (rect.MidX |> float32) - txtWidth, (rect.MidY |> float32) - txtPaint.TextSize, txtPaint)
+      | _ -> ()
