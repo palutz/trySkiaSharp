@@ -74,5 +74,7 @@ module DrawSKiaDSL =
       | Some str -> 
               let txtPaint = painterText (Color.Black.ToSKColor())
               let txtWidth = txtPaint.MeasureText str
-              canvas.DrawText(str, (rect.MidX |> float32) - txtWidth, (rect.MidY |> float32) - txtPaint.TextSize, txtPaint)
+              do 
+                txtPaint.TextSize <- 0.9f * (donut.radius |> float32) * txtPaint.TextSize / txtWidth
+                canvas.DrawText(str, (rect.MidX |> float32) - txtWidth, (rect.MidY |> float32) - txtPaint.TextSize, txtPaint)
       | _ -> ()
