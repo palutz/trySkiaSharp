@@ -125,19 +125,21 @@ type MyPage () =
    
   let grid = new Grid()
   do
+    let chartLabel = 
+       Label(FontSize = Device.GetNamedSize(NamedSize.Small, typeof<Label>),
+                      VerticalOptions = LayoutOptions.Center,
+                      HorizontalTextAlignment = TextAlignment.Center,
+                      Text = "this a string")
+    grid.Children.Add(chartLabel, 1, 0)
     grid.RowDefinitions.Add(RowDefinition(Height = new GridLength(3.0, GridUnitType.Star)))
     grid.RowDefinitions.Add(RowDefinition(Height = new GridLength(4.0, GridUnitType.Star)))
     grid.RowDefinitions.Add(RowDefinition(Height = new GridLength(3.0, GridUnitType.Star)))
     grid.Children.Add(canvasView, 0, 1)
+    grid.Children.Add(chartLabel, 0, 1)
     canvasView.PaintSurface.Add(OnPaintSurfaceEv)
     layout.Children.Add grid
     //layout.Children.Add canvasView
-    //let chartLabel = 
-    //   Label(FontSize = Device.GetNamedSize(NamedSize.Small, typeof<Label>),
-    //                  VerticalOptions = LayoutOptions.Center,
-    //                  HorizontalTextAlignment = TextAlignment.End,
-    //                  Text = str)
-    //grid.Children.Add(chartLabel, 1, 0)
+
     //layout.Children.Add chartLabel
 
     base.Content <- layout
